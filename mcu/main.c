@@ -12,7 +12,7 @@ void printMotorSpeed(float velocity_rps) {
 		direction = "CCW";
 	}
         float absVelocity = fabsf(velocity_rps);
-	printf("%s %f rev/s \n", direction, absVelocity);
+	printf("%s %f rev/s\n", direction, absVelocity);
 }
 
 //function used by printf
