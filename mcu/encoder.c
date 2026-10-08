@@ -4,7 +4,7 @@
 #include "STM32L432KC_EXTI.h"
 
 // Shared variables
-static volatile int32_t	encoder_count;
+static volatile int	encoder_count;
 static volatile uint32_t last_edge_us;
 static volatile uint32_t last_edge_interval_us;
 
@@ -69,7 +69,7 @@ void EXTI15_10_IRQHandler(void) {
 
 
 //120 pulses per rev = 120 pulses/rev per channel x 4 edges (rising and falling edges of A and B)
-static float countsToRevPerSec(int32_t counts, uint32_t elapsed_us) {
+static float countsToRevPerSec(int counts, uint32_t elapsed_us) {
 	if (elapsed_us == 0) {
 		return 0.0f;	//Stop divide by 0
 	}
@@ -80,20 +80,20 @@ static float countsToRevPerSec(int32_t counts, uint32_t elapsed_us) {
 //Velocity = (counts since last call) / (time between the edge seen by the old call and the edge seen now)
 float encoderGetVelocity(void) {
 	//Remembered between calls
-	static int32_t prev_count = 0;
+	static int prev_count = 0;
 	static uint32_t prev_edge_us = 0;
 	static int stopped = 1;
 	static float velocity_rps = 0.0f;
 
 	//Copy the values. Pause interrupts so nothing gets overwritten while we are copying
 	__disable_irq();
-	int32_t count = encoder_count;
+	int count = encoder_count;
 	uint32_t edge_us = last_edge_us;
 	uint32_t interval_us = last_edge_interval_us;
 	uint32_t now_us = TIM2->CNT;
 	__enable_irq();
 
-	int32_t new_counts = count - prev_count;
+	int new_counts = count - prev_count;
 
 	if (now_us - edge_us >= 1000000u) {	//If there have been no edges for 1s the motor is stopped
 		//120 PPR & 1s means min RPM is 60/120 = 0.5. Can make slower, but I think that is fine.
